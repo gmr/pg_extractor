@@ -16,8 +16,8 @@ from multiprocessing import Process
 
 class PGExtractor:
     """
-    A class object for the PG Extractor PostgreSQL dump filter script. 
-    Some public methods are available for individual use outside this script's normal function, 
+    A class object for the PG Extractor PostgreSQL dump filter script.
+    Some public methods are available for individual use outside this script's normal function,
     but many of its advanced features are only available via the command line interface to the script.
     """
 
@@ -35,9 +35,9 @@ class PGExtractor:
 
     def build_main_object_list(self, restore_file="#default#"):
         """
-        Build a list of all objects contained in the dump file 
+        Build a list of all objects contained in the dump file
 
-        * restore_file: full path to a custom format (-Fc) pg_dump file 
+        * restore_file: full path to a custom format (-Fc) pg_dump file
 
         Returns a list containing a dictionary object for each line obtained when running pg_restore -l
         """
@@ -113,7 +113,7 @@ class PGExtractor:
             obj_type = p_main_object_type.match(o)
             if obj_type != None:
                 # Matches function/agg or the ACL for them
-                if ( re.match(p_objid + r'\s(FUNCTION|AGGREGATE)', o) 
+                if ( re.match(p_objid + r'\s(FUNCTION|AGGREGATE)', o)
                         or (obj_type.group('type').strip() == "ACL" and re.search(r'\(.*\)', o)) ):
                     obj_mapping = p_function_mapping.match(o)
                     objname = obj_mapping.group('objname')
@@ -214,10 +214,10 @@ class PGExtractor:
 
     def build_type_object_list(self, object_list, list_types):
         """
-        Build a list of objects only of the given types. 
+        Build a list of objects only of the given types.
 
-        * object_list - a list in the format created by build_main_object_list 
-        * list_types - a list of desired object types (objtype field in object_list) 
+        * object_list - a list in the format created by build_main_object_list
+        * list_types - a list of desired object types (objtype field in object_list)
 
         Returns a filtered list in the same format as object_list
         """
@@ -258,11 +258,11 @@ class PGExtractor:
 
     def create_extract_files(self, object_list, target_dir="#default#"):
         """
-        Create extracted DDL files in an organized folder structure. 
-        Many of the additional folder & filter options are not available when this is called directly. 
-        pg_dump command uses environment variables for several settings (add list to docstring). 
+        Create extracted DDL files in an organized folder structure.
+        Many of the additional folder & filter options are not available when this is called directly.
+        pg_dump command uses environment variables for several settings (add list to docstring).
 
-        * object_list - a list in the format created by build_main_object_list 
+        * object_list - a list in the format created by build_main_object_list
         * target_dir - full path to a directory to use as output for extracted files.
             Will be created if it doesn't exist.
             Used in same manner as --basedir option to command line version.
@@ -358,7 +358,7 @@ class PGExtractor:
             fh = open(tmp_restore_list.name, 'w', encoding='utf-8', newline='\n')
             # loop over same list to find overloaded functions
             for d in dupe_list:
-                if ( o.get('objschema') == d.get('objschema') and 
+                if ( o.get('objschema') == d.get('objschema') and
                         o.get('objbasename') == d.get('objbasename') ):
                     restore_line =  d.get('objid') + " " + d.get('objtype') + " " + d.get('objschema')
                     restore_line += " " + d.get('objname') + " " + d.get('objowner') + "\n"
@@ -367,7 +367,7 @@ class PGExtractor:
             for a in acl_list:
                 if "objbasename" in a:
                     if o.get('objschema') == a.get('objschema') and o.get('objbasename') == a.get('objbasename'):
-                        restore_line =  a.get('objid') + " " + a.get('objtype') + " " + a.get('objschema') 
+                        restore_line =  a.get('objid') + " " + a.get('objtype') + " " + a.get('objschema')
                         restore_line += " " + a.get('objname') + " " + a.get('objowner') + "\n"
                         fh.write(restore_line)
             for c in comment_list:
@@ -651,8 +651,8 @@ class PGExtractor:
 
     def delete_files(self, keep_file_list, target_dir="#default#"):
         """
-        Delete files with .sql extension that don't exist in a list of given files. 
-        Delete folders in a given path if they are empty. 
+        Delete files with .sql extension that don't exist in a list of given files.
+        Delete folders in a given path if they are empty.
 
         * keep_file_list: list object containing full paths to files that SHOULD REMAIN
         * target_dir: full path to target directory of files to clean up.
@@ -688,7 +688,7 @@ class PGExtractor:
         """
         Extract the roles from the database cluster (uses pg_dumpall -r)
 
-        * output_dir: full path to folder where file will be created. 
+        * output_dir: full path to folder where file will be created.
             Full directory tree will be created if it does not exist.
 
         Returns the full path to the output_file that was created.
@@ -793,11 +793,11 @@ class PGExtractor:
 
     def show_examples(self):
         print("""
-        Basic minimum usage. 
-        This will extract all tables, functions/aggregates, views, types & roles. 
-        It uses the directory that pg_extractor is run from as the base directory 
-        (objects will be found in ./mydb/) and will also produce a permanent copy 
-        of the pg_dump file that the objects were extracted from.  It expects the 
+        Basic minimum usage.
+        This will extract all tables, functions/aggregates, views, types & roles.
+        It uses the directory that pg_extractor is run from as the base directory
+        (objects will be found in ./mydb/) and will also produce a permanent copy
+        of the pg_dump file that the objects were extracted from.  It expects the
         locations of the postgres binaries to be in the $PATH.
 
             python3 pg_extractor.py -U postgres -d mydb --getall --keep_dump
@@ -806,13 +806,13 @@ class PGExtractor:
 
             python3 pg_extractor.py -U postgres -d mydb --getfuncs -n keith
 
-        Extract only specifically named functions in the given filename (newline 
-        separated list). Ensure the full function signature is given with only 
-        the variable types for arguments. Since the functions desired are all 
-        in one schema, setting the -n option speeds it up a little since it only 
+        Extract only specifically named functions in the given filename (newline
+        separated list). Ensure the full function signature is given with only
+        the variable types for arguments. Since the functions desired are all
+        in one schema, setting the -n option speeds it up a little since it only
         has to dump out a single schema to the temp dump file that is used.
 
-            python3 pg_extractor.py -U postgres --dbname=mydb --getfuncs 
+            python3 pg_extractor.py -U postgres --dbname=mydb --getfuncs
                 --include_functions_file=/home/postgres/func_incl -n dblink
 
              func_incl file contains:
@@ -821,10 +821,10 @@ class PGExtractor:
              dblink.dblink_exec(text)
              dblink.dblink_exec(text, boolean)
 
-        Extract only the tables listed in the given filename list) along 
+        Extract only the tables listed in the given filename list) along
         with the data in the pg_dump custom format.
 
-            python3 pg_extractor.py -U postgres --dbname=mydb --gettables -Fc 
+            python3 pg_extractor.py -U postgres --dbname=mydb --gettables -Fc
                 -tf /home/postgres/tbl_incl --getdata
 
         Using an options file
@@ -901,10 +901,10 @@ class PGExtractor:
 
     def _cleanup_temp_files(self):
         """
-        Cleanup temporary files left behind by pg_restore. 
-        They are not cleaned up automatically because they must be referenced after 
+        Cleanup temporary files left behind by pg_restore.
+        They are not cleaned up automatically because they must be referenced after
         the file is closed for writing.
-        Processes in the script add to the the global list variable temp_filelist 
+        Processes in the script add to the the global list variable temp_filelist
         declared in constructor.
         """
         if self.args.debug:
@@ -915,17 +915,17 @@ class PGExtractor:
             if os.path.exists(f):
                 os.remove(f)
 
-
     def _create_temp_dump(self):
         """
         Create the temp dump file used for rest of script runtime.
         """
-        if not self.args.quiet: 
+        if not self.args.quiet:
             print("Creating temp dump file...")
         pg_dump_cmd = ["pg_dump"]
         pg_dump_cmd.append("--format=custom")
         # tmp_dump_file is created during _set_config() so it can be used elsewhere easily
         pg_dump_cmd.append("--file=" + self.tmp_dump_file.name)
+
         if not self.args.getdata:
             # Some object data is only placed in dump file when data is include (ex: sequence values).
             # So include all data even in temp dump so that can be obtained.
@@ -1102,7 +1102,7 @@ class PGExtractor:
 
     def _parse_arguments(self):
         """
-        Parse command line arguments. 
+        Parse command line arguments.
         Sets self.args parameter for use throughout class/script.
         """
         self.parser = argparse.ArgumentParser(description="A script for doing advanced dump filtering and managing schema for PostgreSQL databases. See NOTES section at the top of the script source for more details and examples.", epilog="NOTE: You can pass arguments via a file by passing the filename prefixed with an @ (instead of dashes). Each argument must be on its own line and its recommended to use the double-dash (--) options to make the formatting easiest. Ex: @argsfile.txt", fromfile_prefix_chars="@")
@@ -1196,7 +1196,7 @@ class PGExtractor:
         if self.args and not self.args.getdata:
             pg_dump_cmd.append("--schema-only")
         if self.args and self.args.clean:
-            pg_dump_cmd.append("--clean") 
+            pg_dump_cmd.append("--clean")
         if self.args and self.args.no_acl:
             pg_dump_cmd.append("--no-acl")
         if self.args and self.args.no_owner:
@@ -1219,7 +1219,7 @@ class PGExtractor:
 
     def _run_pg_restore(self, list_file, output_file):
         """
-        Run pg_restore using a file that can be fed to it using the -L option. 
+        Run pg_restore using a file that can be fed to it using the -L option.
         Assumes a temporary dumpfile was create via _create_temp_dump() and uses that
 
         * list_file: file containing objects obtained from pg_restore -l that will be restored
@@ -1280,7 +1280,7 @@ class PGExtractor:
             os.environ["PATH"] = self.args.pgbin + os.pathsep + os.environ["PATH"]
 
         # Change basedir if these are set
-        if self.args.hostnamedir != None: 
+        if self.args.hostnamedir != None:
             self.args.basedir = os.path.join(self.args.basedir, self.args.hostnamedir)
         if self.args.nodbnamedir == True:
             pass # Don't add a dbname to new basedir
@@ -1361,10 +1361,10 @@ if __name__ == "__main__":
             p.tmp_dump_file.close()
 
         p._cleanup_temp_files()
-            
+
     if not p.args.quiet:
         print("Done")
-   
+
 """
 LICENSE AND COPYRIGHT
 ---------------------
