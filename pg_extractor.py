@@ -926,6 +926,8 @@ class PGExtractor:
         # tmp_dump_file is created during _set_config() so it can be used elsewhere easily
         pg_dump_cmd.append("--file=" + self.tmp_dump_file.name)
 
+        if self.args.role:
+            pg_dump_cmd.append('--role=' + self.args.role)
         if not self.args.getdata:
             # Some object data is only placed in dump file when data is include (ex: sequence values).
             # So include all data even in temp dump so that can be obtained.
@@ -1114,6 +1116,7 @@ class PGExtractor:
         args_conn.add_argument('--service', help="Defined service to use to connect to a database. Can also be set with the PGSERVICE environment variable.")
         args_conn.add_argument('--encoding', help="Create the dump files in the specified character set encoding. By default, the dump is created in the database encoding. Can also be set with the PGCLIENTENCODING environment variable.")
         args_conn.add_argument('--pgpass', help="Full file path to location of .pgpass file if not in default location. Can also be set with the PGPASSFILE environment variable.")
+        args_conn.add_argument('--role', help="do SET ROLE before dump.")
 
         args_dir = self.parser.add_argument_group(title="Directories")
         args_dir.add_argument('--basedir', default=os.getcwd(), help="Base directory for ddl export. (Default: directory pg_extractor is run from)")
@@ -1189,6 +1192,8 @@ class PGExtractor:
         pg_dump_cmd = ["pg_dump", "--file=" + output_file]
         pg_dump_cmd.append(r'--table="' + o.get('objschema') + r'"."' + o.get('objname') + r'"')
 
+        if self.args.role:
+            pg_dump_cmd.append('--role=' + self.args.role)
         if self.args and self.args.Fc:
             pg_dump_cmd.append("--format=custom")
         else:
